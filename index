@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Hôpitaux</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            background-color: #343a40;
+            padding: 20px;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            font-size: 18px;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+            border-radius: 5px;
+        }
+        .content {
+            margin-left: 270px; /* Éviter chevauchement du menu */
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .status {
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .search-container {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Barre latérale -->
+<div class="sidebar">
+    <h2>🏥 Menu</h2>
+    <a href="/">Home</a>
+    <a href="/predictions">Predictions</a>
+    <a href="/admissions">Admissions</a>
+    <a href="#">Statistics</a>
+    <a href="#">Parameters</a>
+    <a href="#">Logout</a>
+</div>
+
+<!-- Contenu principal -->
+<div class="content">
+    <h1 class="text-center">🏥 Hospital Dashboard</h1>
+
+    <!-- Barre de recherche -->
+    <input type="text" id="searchHospital" class="form-control search-container" placeholder="🔍 Search for a hospital or a specialty..." onkeyup="filterHospitals()">
+
+    <!-- Tableau des hôpitaux -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Speciality</th>
+                <th>Available beds</th>
+                <th>Total capacity</th>
+                <th>Occupancy rate</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="hospitalTable"></tbody>
+    </table>
+
+    <!-- Lien vers la nouvelle page Prédictions -->
+    <div class="text-center mt-4">
+        <a href="/predictions" class="btn btn-primary"> Admit a patient</a>
+    </div>
+
+    <div id="map" style="height: 500px; border-radius: 10px;"></div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    var map = L.map('map').setView([48.5665, 13.4312], 10); // Centré sur Paris
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    //  Ajouter hospitals
+    fetch("/get_hospitals")
+    .then(response => response.json())
+    .then(hospitals => {
+        hospitals.forEach(hospital => {
+            let iconColor = getIconColor(hospital.Taux_occupation);
+            let marker = L.marker([hospital.Latitude, hospital.Longitude], { icon: iconColor })
+            .addTo(map)
+            .bindPopup(`<b>${hospital.Nom}</b><br>Specialty: ${hospital.Specialites.join(", ")}<br>Taux d'occupation: ${hospital.Taux_occupation}%`);
+        });
+    })
+    .catch(error => console.error("Erreur lors du chargement des hôpitaux :", error));
+
+    // Ajouter patients
+    fetch("/get_admissions")
+    .then(response => response.json())
+    .then(admissions => {
+        admissions.forEach(patient => {
+            L.marker([patient.Latitude, patient.Longitude], { icon: L.icon({iconUrl: "patient_icon.png", iconSize: [32, 32]}) })
+            .addTo(map)
+            .bindPopup(`<b>${patient.Nom}</b><br>Spécialité: ${patient.Specialite}`);
+        });
+    })
+    .catch(error => console.error("Erreur lors du chargement des admissions :", error));
+});
+
+// 🔹 Définir l’icône selon le taux d’occupation
+function getIconColor(taux) {
+    let color = taux < 50 ? 'green' : taux < 80 ? 'yellow' : 'red';
+    return L.icon({
+        iconUrl: `marker_${color}.png`,
+        iconSize: [32, 32]
+    });
+}
+
+document.addEventListener("DOMContentLoaded", loadHospitals);
+
+function loadHospitals() {
+    fetch("/get_hospitals")
+    .then(response => response.json())
+    .then(hospitals => {
+        console.log("Données récupérées :", hospitals); // 🔍 Vérification
+        let table = document.getElementById("hospitalTable");
+        table.innerHTML = "";
+        hospitals.forEach(hospital => {
+            let row = table.insertRow();
+            let statusColor = getStatusColor(hospital.Taux_occupation);
+            row.innerHTML = `<td>${hospital.Nom}</td><td>${hospital.Specialites.join(", ")}</td>
+                             <td>${hospital.Lits_disponibles}</td><td>${hospital.Capacite}</td>
+                             <td>${hospital.Taux_occupation}%</td>
+                             <td class="status" style="background-color:${statusColor};">${getStatusText(hospital.Taux_occupation)}</td>`;
+        });
+    })
+    .catch(error => console.error("Erreur :", error));
+}
+
+// Fonction pour filtrer les hôpitaux
+function filterHospitals() {
+    let input = document.getElementById("searchHospital").value.toLowerCase();
+    let table = document.getElementById("hospitalTable");
+    let rows = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < rows.length; i++) {
+        let hospitalName = rows[i].getElementsByTagName("td")[0]; // Nom de l'hôpital
+        let specialities = rows[i].getElementsByTagName("td")[1]; // Spécialités
+
+        if (hospitalName && specialities) {
+            let nameText = hospitalName.textContent.toLowerCase();
+            let specialitiesText = specialities.textContent.toLowerCase();
+            if (nameText.includes(input) || specialitiesText.includes(input)) {
+                rows[i].style.display = ""; // Afficher la ligne
+            } else {
+                rows[i].style.display = "none"; // Masquer la ligne
+            }
+        }
+    }
+}
+
+// Fonction pour déterminer la couleur
+function getStatusColor(taux) {
+    if (taux < 50) return "#28a745";  // Vert (disponible)
+    if (taux < 80) return "#ffc107";  // Jaune (presque plein)
+    return "#dc3545"; // Rouge (saturé)
+}
+
+// Fonction pour afficher un texte de statut
+function getStatusText(taux) {
+    if (taux < 50) return "Disponible";
+    if (taux < 80) return "Presque plein";
+    return "Saturé";
+}
+document.addEventListener("DOMContentLoaded", function() {
+    var map = L.map('map').setView([48.8566, 2.3522], 12); // Centré sur Paris
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    fetch("/get_hospitals")
+    .then(response => response.json())
+    .then(hospitals => {
+        hospitals.forEach(hospital => {
+            L.marker([hospital.Latitude, hospital.Longitude])
+            .addTo(map)
+            .bindPopup(`<b>${hospital.Nom}</b><br>Spécialités: ${hospital.Specialites.join(", ")}`);
+        });
+    })
+    .catch(error => console.error("Erreur lors du chargement des hôpitaux :", error));
+});
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
