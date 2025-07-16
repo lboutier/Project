@@ -17,12 +17,12 @@ function fairePrediction() {
 }
 
 function choisirHopital(specialite, distance) {
-  // 🔧 Exemple simple : choisir un hôpital selon la spécialité
+  // Choisir un hôpital selon la spécialité
   const hopitaux = {
     "Cardiologie": "Hôpital Rotthalmünster",
     "Gériatrie": "Hôpital Vilshofen",
     "Radiologie": "Hôpital Wegscheid"
-    // ➕ Ajoute d'autres spécialités ici
+    // Ajouter d'autres spécialités ici
   };
 
   return hopitaux[specialite] || "Hôpital par défaut";
