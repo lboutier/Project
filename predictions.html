@@ -1,178 +1,105 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prédictions Admissions</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            background-color: #343a40;
-            padding: 20px;
-            color: white;
-        }
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            padding: 12px;
-            font-size: 18px;
-            border-radius: 5px;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-        .content {
-            margin-left: 270px;
-            padding: 20px;
-        }
-        .form-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 50%;
-            margin: auto;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        label {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            width: 50%;
-            margin-top: 15px;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Patient Triage</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .sidebar {
+      width: 250px;
+      height: 100vh;
+      position: fixed;
+      background-color: #343a40;
+      padding: 20px;
+      color: white;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px;
+      font-size: 18px;
+    }
+    .sidebar a:hover {
+      background-color: #495057;
+    }
+    .content {
+      margin-left: 270px;
+      padding: 30px;
+    }
+    .form-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 50%;
+      margin: auto;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Barre latérale -->
+<!-- Sidebar navigation -->
 <div class="sidebar">
-    <h2>🏥 Menu</h2>
-    <a href="index.html">Home</a>
-    <a href="predictions.html">Predictions</a>
-    <a href="admissions.html">Admissions</a>
-    <a href="/stats">Statistics</a>
-    <a href="#">Parameters</a>
-    <a href="#">Logout</a>
+  <h2>🏥 Menu</h2>
+  <a href="index.html">Home</a>
+  <a href="predictions.html">Patient Triage</a>
+  <a href="admissions.html">Admissions</a>
+  <a href="#">Statistics</a>
+  <a href="#">Settings</a>
+  <a href="#">Logout</a>
 </div>
 
-<!-- Contenu principal -->
+<!-- Main content -->
 <div class="content">
-    <h1 class="text-center">📋 Entry of patient information</h1>
+  <h1 class="text-center">🩺 Triage & Patient Admission</h1>
 
-    <div class="form-container">
-        <form id="predictionForm">
-            <label for="nom">Last Name :</label>
-            <input type="text" id="nom" name="Nom" required>
+  <div class="form-container">
+    <form id="predictionForm">
+      <label>Last Name:</label>
+      <input type="text" id="lastname" required>
 
-            <label for="prenom">First Name :</label>
-            <input type="text" id="prenom" name="Prenom" required>
+      <label>First Name:</label>
+      <input type="text" id="firstname" required>
 
-            <label for="age">Age :</label>
-            <input type="number" id="age" name="Age" min="0" max="120" required>
+      <label>Age:</label>
+      <input type="number" id="age" min="0" max="120" required>
 
-            <label for="specialite">Speciality :</label>
-            <select id="specialite" name="Specialite" required>
-                <option value="Accident vasculaire">Vascular accident</option>
-                <option value="Gériatrie">Geriatrics</option>
-                <option value="Anesthésie">Anesthesia</option>
-                <option value="Cardiologie">Cardiology</option>
-                <option value="Chirurgie de la main">Hand surgery</option>
-                <option value="Chirurgie du pied">Foot surgery</option>
-                <option value="Chirurgie générale et viscérale">General and visceral surgery</option>
-                <option value="Chirurgie traumatologique, orthopédique et médecine du sport">Orthopedic and trauma surgery and sports medicine</option>
-                <option value="Dermatologie">Dermatologist</option>
-                <option value="Gastro-entérologue">Gastroenterologist</option>
-                <option value="Gynécologie">Gynecology</option>
-                <option value="Médecine interne">Internal medicine</option>
-                <option value="Neurochirurgie">Neurosurgery</option>
-                <option value="Orthopédie">Orthopedics</option>
-                <option value="Oto-rhino-laryngologie">Otorhinolaryngology</option>
-                <option value="Pédiatrie">Pediatrics</option>
-                <option value="Pneumologie">Pulmonology</option>
-                <option value="Psychosomatique">Psychosomatic</option>
-                <option value="Radiologie">Radiology</option>
-                <option value="Rhumatologie">Rheumatology</option>
-                <option value="Traitement multimodal de la douleur stationnaire">Multimodal treatment of inpatient pain</option>
-                <option value="Urologie">Urology</option>
+      <label>Urgency level (0 = low, 1 = medium, 2 = high):</label>
+      <select id="urgency" required>
+        <option value="0">Low</option>
+        <option value="1">Medium</option>
+        <option value="2">High</option>
+      </select>
 
-            </select>
+      <label>Medical specialty:</label>
+      <select id="specialty" required>
+        <option value="Dermatology">Dermatology</option>
+        <option value="Cardiology">Cardiology</option>
+        <option value="Pediatrics">Pediatrics</option>
+        <option value="Geriatrics">Geriatrics</option>
+        <option value="Neurosurgery">Neurosurgery</option>
+        <option value="Radiology">Radiology</option>
+        <option value="Pulmonology">Pulmonology</option>
+        <option value="Psychosomatic">Psychosomatic</option>
+        <option value="Stroke">Stroke</option>
+      </select>
 
-            <label for="urgence">Emergency (0-2) :</label>
-            <input type="number" id="urgence" name="Urgence" min="0" max="2" required>
+      <label>Distance (0 = close, 1 = mid, 2 = far):</label>
+      <input type="number" id="distance" min="0" max="2" required>
 
-            <label for="distance">Distance (0-2) :</label>
-            <input type="number" id="distance" name="Distance" min="0" max="2" required>
+      <label>Availability (0–4):</label>
+      <input type="number" id="availability" min="0" max="4" required>
 
-            <label for="disponibilite">Availability (0-4) :</label>
-            <input type="number" id="disponibilite" name="Disponibilite" min="0" max="4" required>
+      <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </form>
 
-            <button type="submit" class="btn btn-primary mt-3">Register the patient</button>
-        </form>
-        <p id="resultat" class="mt-3 text-center"></p>
-    </div>
+    <p id="recommendation" class="mt-3 text-center fw-bold"></p>
+  </div>
 </div>
 
-<script>
-document.getElementById("predictionForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-
-    const newPatient = {
-        Nom: document.getElementById("nom").value,
-        Prenom: document.getElementById("prenom").value,
-        Age: parseInt(document.getElementById("age").value),
-        Date: new Date().toISOString().slice(0, 10),
-        Urgence: parseInt(document.getElementById("urgence").value),
-        Distance: parseInt(document.getElementById("distance").value),
-        Specialite: document.getElementById("specialite").value,
-        Disponibilite: parseInt(document.getElementById("disponibilite").value)
-    };
-
-    fetch("/add_patient", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPatient)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Réponse du serveur :", data);
-        if (data.error) {
-            alert("Erreur : " + data.error);
-        } else {
-            window.location.href = "/admissions";  //  Redirection automatique après ajout
-        }
-    })
-    .catch(error => console.error("Erreur :", error));
-});
-</script>
-
+<script src="triage.js"></script>
 </body>
 </html>
