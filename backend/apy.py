@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 def init_db():
     conn = sqlite3.connect("patients.db")
