@@ -42,6 +42,10 @@ def get_admissions():
     rows = c.fetchall()
     conn.close()
     return jsonify([dict(row) for row in rows])
+    
+@app.route("/")
+def home():
+    return "✔️ Flask API is running!"
 
 if __name__ == "__main__":
     init_db()
