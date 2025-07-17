@@ -1,172 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <style>
-        body { background-color: #f8f9fa; }
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            position: fixed;
-            background-color: #343a40;
-            padding: 20px;
-            color: white;
-        }
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            padding: 10px;
-            font-size: 18px;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-            border-radius: 5px;
-        }
-        .content {
-            margin-left: 270px;
-            padding: 20px;
-            overflow-x: auto;
-        }
-        .table { width: 100%; margin-top: 20px; }
-        .status { color: white; font-weight: bold; text-align: center; }
-        .search-container { margin-bottom: 15px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospital Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    body { background-color: #f8f9fa; }
+    .sidebar {
+      width: 250px;
+      height: 100vh;
+      position: fixed;
+      background-color: #343a40;
+      padding: 20px;
+      color: white;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px;
+      font-size: 18px;
+    }
+    .sidebar a:hover {
+      background-color: #495057;
+      border-radius: 5px;
+    }
+    .content {
+      margin-left: 270px;
+      padding: 20px;
+    }
+    .status {
+      font-weight: bold;
+      text-align: center;
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Sidebar navigation -->
 <div class="sidebar">
-    <h2>🏥 Menu</h2>
-    <a href="index.html">Home</a>
-    <a href="predictions.html">Patient Triage</a>
-    <a href="admissions.html">Admissions</a>
-    <a href="#">Statistics</a>
-    <a href="#">Settings</a>
-    <a href="#">Logout</a>
+  <h2>🏥 Menu</h2>
+  <a href="index.html">Home</a>
+  <a href="triage.html">Triage</a>
+  <a href="admissions.html">Admissions</a>
 </div>
 
-<!-- Main content -->
 <div class="content">
-    <h1 class="text-center">🏥 Hospital Dashboard</h1>
-    <input type="text" id="searchHospital" class="form-control search-container" placeholder="🔍 Search for a hospital or specialty..." onkeyup="filterHospitals()">
+  <h1 class="text-center">🏥 Hospital Dashboard</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Specialties</th>
+        <th>Available Beds</th>
+        <th>Total Capacity</th>
+        <th>Occupancy Rate</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="hospitalTable"></tbody>
+  </table>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Hospital Name</th>
-                <th>Specialties</th>
-                <th>Available Beds</th>
-                <th>Total Capacity</th>
-                <th>Occupancy Rate</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="hospitalTable"></tbody>
-    </table>
-
-    <div class="text-center mt-4">
-        <a href="predictions.html" class="btn btn-primary">Admit a Patient</a>
-    </div>
-
-    <div id="map" style="height: 500px; border-radius: 10px;"></div>
+  <div id="map" style="height: 400px; border-radius: 10px;"></div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const map = L.map('map').setView([48.5665, 13.4312], 10);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+  const BACKEND_URL = "https://project-op4e.onrender.com";
 
-    fetch("/get_hospitals")
-        .then(response => response.json())
-        .then(hospitals => {
-            hospitals.forEach(hospital => {
-                const icon = getIconColor(hospital.Taux_occupation);
-                L.marker([hospital.Latitude, hospital.Longitude], { icon })
-                    .addTo(map)
-                    .bindPopup(`<b>${hospital.Nom}</b><br>Specialties: ${hospital.Specialites.join(", ")}<br>Occupancy Rate: ${hospital.Taux_occupation}%`);
-            });
-        })
-        .catch(error => console.error("Error loading hospitals:", error));
-
-    fetch("/get_admissions")
-        .then(response => response.json())
-        .then(admissions => {
-            admissions.forEach(patient => {
-                L.marker([patient.Latitude, patient.Longitude], {
-                    icon: L.icon({ iconUrl: "patient_icon.png", iconSize: [32, 32] })
-                })
-                .addTo(map)
-                .bindPopup(`<b>${patient.Nom}</b><br>Specialty: ${patient.Specialite}`);
-            });
-        })
-        .catch(error => console.error("Error loading admissions:", error));
-});
-
-function getIconColor(rate) {
-    let color = rate < 50 ? 'green' : rate < 80 ? 'yellow' : 'red';
-    return L.icon({
-        iconUrl: `marker_${color}.png`,
-        iconSize: [32, 32]
-    });
-}
-
-function loadHospitals() {
-    fetch("/get_hospitals")
-        .then(response => response.json())
-        .then(hospitals => {
-            let table = document.getElementById("hospitalTable");
-            table.innerHTML = "";
-            hospitals.forEach(hospital => {
-                let statusColor = getStatusColor(hospital.Taux_occupation);
-                let row = table.insertRow();
-                row.innerHTML = `<td>${hospital.Nom}</td><td>${hospital.Specialites.join(", ")}</td>
-                                 <td>${hospital.Lits_disponibles}</td><td>${hospital.Capacite}</td>
-                                 <td>${hospital.Taux_occupation}%</td>
-                                 <td class="status" style="background-color:${statusColor};">${getStatusText(hospital.Taux_occupation)}</td>`;
-            });
-        })
-        .catch(error => console.error("Error:", error));
-}
-
-function filterHospitals() {
-    let input = document.getElementById("searchHospital").value.toLowerCase();
-    let rows = document.getElementById("hospitalTable").getElementsByTagName("tr");
-
-    for (let i = 0; i < rows.length; i++) {
-        let nameCell = rows[i].getElementsByTagName("td")[0];
-        let specialtiesCell = rows[i].getElementsByTagName("td")[1];
-
-        if (nameCell && specialtiesCell) {
-            let name = nameCell.textContent.toLowerCase();
-            let specialties = specialtiesCell.textContent.toLowerCase();
-            rows[i].style.display = name.includes(input) || specialties.includes(input) ? "" : "none";
-        }
-    }
-}
-
-function getStatusColor(rate) {
+  function getStatusColor(rate) {
     if (rate < 50) return "#28a745";
     if (rate < 80) return "#ffc107";
     return "#dc3545";
-}
+  }
 
-function getStatusText(rate) {
+  function getStatusText(rate) {
     if (rate < 50) return "Available";
-    if (rate < 80) return "Nearly Full";
-    return "Saturated";
-}
+    if (rate < 80) return "Almost Full";
+    return "Full";
+  }
 
-document.addEventListener("DOMContentLoaded", loadHospitals);
+  fetch(`${BACKEND_URL}/get_hospitals`)
+    .then(res => res.json())
+    .then(data => {
+      const table = document.getElementById("hospitalTable");
+      data.forEach(h => {
+        const row = table.insertRow();
+        row.innerHTML = `
+          <td>${h.Nom}</td>
+          <td>${h.Specialites.join(", ")}</td>
+          <td>${h.Lits_disponibles}</td>
+          <td>${h.Capacite}</td>
+          <td>${h.Taux_occupation}%</td>
+          <td class="status" style="background:${getStatusColor(h.Taux_occupation)}">${getStatusText(h.Taux_occupation)}</td>
+        `;
+      });
+
+      const map = L.map('map').setView([48.5, 13.5], 9);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      data.forEach(h => {
+        L.marker([h.Latitude, h.Longitude])
+          .addTo(map)
+          .bindPopup(`<b>${h.Nom}</b><br>Occupancy: ${h.Taux_occupation}%`);
+      });
+    })
+    .catch(err => console.error("Error loading hospitals:", err));
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
