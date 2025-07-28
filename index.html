@@ -86,22 +86,22 @@
   }
 
   fetch(`${BACKEND_URL}/get_hospitals`)
-    .then(res => res.json())
-    .then(data => {
-      const table = document.getElementById("hospitalTable");
-      data.forEach(h => {
-        const row = table.insertRow();
-        row.innerHTML = `
-          <td>${h.name}</td>
-          <td>${Array.isArray(h.specialties) ? h.specialties.join(", ") : "N/A"}</td>
-          <td>${h.available_beds}</td>
-          <td>${h.capacity}</td>
-          <td>${h.occupancy_rate}%</td>
-          <td class="status" style="background:${getStatusColor(h.occupancy_rate)}">${getStatusText(h.occupancy_rate)}</td>
-        `;
-      });
+  .then(res => res.json())
+  .then(data => {
+    const table = document.getElementById("hospitalTable");
+    data.forEach(hospital => {
+      const row = table.insertRow();
+      row.innerHTML = `
+        <td>${hospital.name}</td>
+        <td>${hospital.specialties ? hospital.specialties.join(", ") : "N/A"}</td>
+        <td>${hospital.available_beds}</td>
+        <td>${hospital.capacity}</td>
+        <td>${hospital.occupancy_rate}%</td>
+        <td class="status" style="background:${getStatusColor(hospital.occupancy_rate)}">${getStatusText(hospital.occupancy_rate)}</td>
+      `;
+    });
 
-      const map = L.map('map').setView([48.5, 13.5], 9);
+    const map = L.map('map').setView([48.5, 13.5], 9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
@@ -113,6 +113,7 @@
     });
   })
   .catch(err => console.error("Error loading hospitals:", err));
+
 </script>
 
 </body>
