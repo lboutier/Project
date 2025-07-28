@@ -92,11 +92,11 @@
       data.forEach(h => {
         const row = table.insertRow();
         row.innerHTML = `
-          <td>${h.Nom}</td>
-          <td>${Array.isArray(h.Specialites) ? h.Specialites.join(", ") : "N/A"}</td>
-          <td>${h.Lits_disponibles}</td>
-          <td>${h.Capacite}</td>
-          <td>${h.Taux_occupation}%</td>
+          <td>${h.name}</td>
+          <td>${Array.isArray(h.specialties) ? h.specialties.join(", ") : "N/A"}</td>
+          <td>${h.available_beds}</td>
+          <td>${h.capacity}</td>
+          <td>${h.occupancy_rate}%</td>
           <td class="status" style="background:${getStatusColor(h.Taux_occupation)}">${getStatusText(h.Taux_occupation)}</td>
         `;
       });
