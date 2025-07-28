@@ -97,7 +97,7 @@
           <td>${h.available_beds}</td>
           <td>${h.capacity}</td>
           <td>${h.occupancy_rate}%</td>
-          <td class="status" style="background:${getStatusColor(h.Taux_occupation)}">${getStatusText(h.Taux_occupation)}</td>
+          <td class="status" style="background:${getStatusColor(h.occupancy_rate)}">${getStatusText(h.occupancy_rate)}</td>
         `;
       });
 
@@ -109,7 +109,7 @@
       data.forEach(h => {
         L.marker([h.Latitude, h.Longitude])
           .addTo(map)
-          .bindPopup(`<b>${h.Nom}</b><br>Occupancy: ${h.Taux_occupation}%`);
+          .bindPopup(`<b>${h.name}</b><br>Occupancy: ${h.occupancy_rate}%`);
       });
     })
     .catch(err => console.error("Error loading hospitals:", err));
