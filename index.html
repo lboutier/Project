@@ -102,17 +102,17 @@
       });
 
       const map = L.map('map').setView([48.5, 13.5], 9);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-      data.forEach(h => {
-        L.marker([h.Latitude, h.Longitude])
-          .addTo(map)
-          .bindPopup(`<b>${h.name}</b><br>Occupancy: ${h.occupancy_rate}%`);
-      });
-    })
-    .catch(err => console.error("Error loading hospitals:", err));
+    data.forEach(hospital => {
+      L.marker([hospital.latitude, hospital.longitude])
+        .addTo(map)
+        .bindPopup(`<b>${hospital.name}</b><br>Occupancy: ${hospital.occupancy_rate}%`);
+    });
+  })
+  .catch(err => console.error("Error loading hospitals:", err));
 </script>
 
 </body>
