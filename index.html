@@ -93,7 +93,7 @@
         const row = table.insertRow();
         row.innerHTML = `
           <td>${h.Nom}</td>
-          <td>${h.Specialites.join(", ")}</td>
+          <td>${Array.isArray(h.Specialites) ? h.Specialites.join(", ") : "N/A"}</td>
           <td>${h.Lits_disponibles}</td>
           <td>${h.Capacite}</td>
           <td>${h.Taux_occupation}%</td>
